@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Cryptoauth Test</title>
+</head>
+<body>
+
+<script src="../cryptoauth.js"></script>
+<script>
+
+	function ajax(url, method, cb) {
+		var req = new XMLHttpRequest()
+		req.onreadystatechange = function() {
+	    	if (!(req.readyState == 4 && req.status == 200)) return
+	        cb(req.responseText)
+		}
+		req.open(method, url)
+		req.send()
+	}
+
+	ajax("/pubkey.asc", "GET", init)
+
+	function init(serverPubkey) {
+
+		new CryptoAuth({
+			serverPubkey: serverPubkey,
+			requestToken: function(encryptedPubkey, cb) {
+				console.log('Asking for a token')
+
+				ajax("/requestToken?encryptedPubkey="+encodeURIComponent(encryptedPubkey), "GET", function(encryptedToken) {
+					cb(encryptedToken)
+				})
+			},
+			requestLogin: function(encryptedPubkey, signedEncryptedToken) {
+				console.log('Asking for a login')
+
+				ajax("/requestLogin?encryptedPubkey="+encodeURIComponent(encryptedPubkey)+"&signedEncryptedToken="+encodeURIComponent(signedEncryptedToken), "POST", function(logged) {
+
+					// Obviously the server should then set a cookie or whatever if the auth was successful
+					if (logged == "true")
+						alert('Auth was successful!')
+					else
+						alert('Auth failed')
+				})
+			}
+		})
+	}
+</script>
+</body>
+</html>

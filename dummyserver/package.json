@@ -1,0 +1,10 @@
+{
+  "name": "cryptoauthserver",
+  "version": "0.0.1",
+  "description": "Dummy Cryptoauth server",
+  "homepage": "https://github.com/luisivan/cryptoauth",
+  "dependencies": {
+    "express": "^4.3.0",
+    "openpgp": "^0.6.0"
+  }
+}
