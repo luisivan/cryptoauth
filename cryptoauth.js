@@ -1,8 +1,6 @@
 function CryptoAuth(config) {
 
-	window.cryptoauth = config
-
-	window.postMessage("cryptoauth:available:"+btoa(cryptoauth.serverPubkey), "*")
+	window.postMessage("cryptoauth:available:"+btoa(config.serverPubkey), "*")
 
 	window.addEventListener('message', function(event) {
 
@@ -14,7 +12,7 @@ function CryptoAuth(config) {
 
 			case 'requestToken':
 
-				cryptoauth.requestToken(payload, function(encryptedToken) {
+				config.requestToken(payload, function(encryptedToken) {
 					window.postMessage("cryptoauth:token:"+btoa(encryptedToken), "*")
 				})
 				break;
@@ -26,7 +24,7 @@ function CryptoAuth(config) {
 				var encryptedPubkey = payload[0],
 					signedEncryptedToken = payload[1]
 
-				cryptoauth.requestLogin(encryptedPubkey, signedEncryptedToken)
+				config.requestLogin(encryptedPubkey, signedEncryptedToken)
 				break;
 		}
 
