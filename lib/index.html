@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Cryptoauth Test</title>
+</head>
+<body>
+
+<script src="cryptoauth.js"></script>
+<script>
+
+	window.addEventListener('isCryptoauthAvailable', function(event) {
+        
+        console.log('coool')
+        window.postMessage("getPublicKey", "*")
+        
+    }, false)
+
+	new CryptoAuth({
+		serverPubkey: 'whoa',
+		requestToken: function(encryptedPubkey, cb) {
+			console.log('Asking for a token')
+			cb('1234')
+		},
+		requestLogin: function(encryptedPubkey, signedToken) {
+			console.log('Asking for a login')
+			console.log(encryptedPubkey)
+			console.log(signedToken)
+		}
+	})
+</script>
+</body>
+</html>

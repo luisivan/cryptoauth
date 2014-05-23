@@ -1,0 +1,13 @@
+- 1. install cryptoauth extension
+
+- 2. visit website that supports it. cryptoauth checks if window.cryptoauth is defined
+
+- 3. if it is, the button turns green, and then you can click it to init the login process
+
+4. if clicked, it sends the user's public key (window.cryptoauth.askToken(pubKey)) encrypted using the server's pubkey (window.cryptoauth.pubKey)
+
+5. the server replies with a token encrypted using the user's public key
+
+6. the browser unencrypts it, signs the token and sends it to the server (window.cryptoauth.login(pubKey, tokenSigned))
+
+7. the server verifies the signature and logs the user in
