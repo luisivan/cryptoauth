@@ -2,10 +2,13 @@ var data = require("sdk/self").data,
 	buttons = require('sdk/ui/button/action'),
 	tabs = require("sdk/tabs"),
 	pageMod = require("sdk/page-mod"),
+	file = require("sdk/io/file"),
 	worker = null
 
-tabs.open('file:///home/li/dev/cryptoauth/lib/index.html')
+// Only for development
+tabs.open('http://localhost:3000')
 
+// Button stuff
 var button = buttons.ActionButton({
   	id: "cryptoauth",
   	label: "Login",
@@ -16,10 +19,16 @@ var button = buttons.ActionButton({
   	},
   	disabled: true,
   	onClick: function() {
-  		worker.port.emit("requestToken", "encryptedpubkey")
+
+  		worker.port.emit("requestToken", privKey)
+
   	}
 })
 
+// This should be done using DnD to the button or something
+var privKey = file.read("/home/li/dev/cryptoauth/userprivkey.asc")
+
+// Add the scripts to each page
 pageMod.PageMod({
   	include: ["*", "file:///*"],
   	contentScriptFile: [data.url("openpgp.min.js"), data.url("script.js")],
@@ -27,17 +36,10 @@ pageMod.PageMod({
 
 		worker = w
 
-	    worker.port.on("available", function(serverPubkey) {
+	    worker.port.on("available", function() {
+
 	    	console.log('Cryptoauth available')
-	      	button.state("tab", {
-			    disabled: false
-			})
-	    })
-
-	    worker.port.on("token", function(encryptedToken) {
-
-	    	//unencrypt and sign token
-	    	worker.port.emit("requestLogin", "encryptedpubkey", "signedtoken")
+	      	button.state("tab", { disabled: false })
 
 	    })
 	}

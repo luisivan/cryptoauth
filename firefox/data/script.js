@@ -1,21 +1,45 @@
-window.postMessage("cryptoauth:isAvailable", '*')
+var serverPubkey,
+	userPubkey,
+	userPrivkey,
+	encryptedUserPubkey
 
 window.addEventListener('message', function(event) {
 
 	var data = event.data.split(':'),
 		method = data[1],
-		payload = data[2]
+		payload = atob(data[2])
 
-	self.port.emit(method, payload)
+	switch(method) {
+
+		case 'available':
+
+			// Payload is server's pubkey
+			serverPubkey = openpgp.key.readArmored(payload).keys
+			self.port.emit('available')
+			break;
+
+		case 'token':
+
+			// Payload is encrypted token, unencrypt and sign it
+			var token = openpgp.decryptMessage(userPrivkey, openpgp.message.readArmored(payload)),
+				signedEncryptedToken = openpgp.signAndEncryptMessage(serverPubkey, userPrivkey, token)
+
+			window.postMessage("cryptoauth:requestLogin:"+btoa(encryptedUserPubkey+"|"+signedEncryptedToken), '*')
+
+			break;
+
+	}
 
 }, false)
 
-self.port.on("requestToken", function(encryptedPubkey) {
-	window.postMessage("cryptoauth:requestToken:"+encryptedPubkey, '*')
-})
+self.port.on("requestToken", function(privKey) {
 
-self.port.on("requestLogin", function(encryptedPubkey, signedToken) {
-	window.postMessage("cryptoauth:requestLogin:"+encryptedPubkey+";"+signedToken, '*')
-})
+	userPrivkey = openpgp.key.readArmored(privKey).keys[0]
+	userPrivkey.decrypt("pwd")
+	userPubkey = userPrivkey.toPublic()
 
-console.log(openpgp)
+	encryptedUserPubkey = openpgp.encryptMessage(serverPubkey, userPubkey.armor())
+
+	window.postMessage("cryptoauth:requestToken:"+btoa(encryptedUserPubkey), '*')
+
+})
