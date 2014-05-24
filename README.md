@@ -50,3 +50,5 @@ Why this system rocks
 1. You won't ever care about passwords or usernames again. You just click a button and you're logged in
 
 2. Cryptoauth is secure, whether the server uses SSL or not. No one can steal your session token (only you can decrypt it) and even no one knows your public key, so this is quantum computers-safe
+
+3. Cryptoauth runs as a browser extension so it's completely isolated from the websites you visit. No one can steal your keys
