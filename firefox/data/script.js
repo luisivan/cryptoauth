@@ -22,9 +22,14 @@ window.addEventListener('message', function(event) {
 
 			// Payload is encrypted token, unencrypt and sign it
 			var token = openpgp.decryptMessage(userPrivkey, openpgp.message.readArmored(payload)),
-				signedEncryptedToken = openpgp.signAndEncryptMessage(serverPubkey, userPrivkey, token)
+				signedToken = openpgp.signClearMessage([userPrivkey], token)
 
-			window.postMessage("cryptoauth:requestLogin:"+btoa(encryptedUserPubkey+"|"+signedEncryptedToken), '*')
+			var startStr = 'Comment: http://openpgpjs.org',
+				endStr = '-----END PGP SIGNATURE-----'
+
+			var tokenSignature = signedToken.substring(signedToken.indexOf(startStr)+startStr.length, signedToken.indexOf(endStr))
+
+			window.postMessage("cryptoauth:requestLogin:"+btoa(userHashedPubkey+"|"+tokenSignature), '*')
 
 			break;
 
@@ -32,7 +37,7 @@ window.addEventListener('message', function(event) {
 
 }, false)
 
-self.port.on("requestToken", function(privKey) {
+/*self.port.on("requestToken", function(privKey) {
 
 	userPrivkey = openpgp.key.readArmored(privKey).keys[0]
 	userPrivkey.decrypt("pwd")
@@ -42,4 +47,19 @@ self.port.on("requestToken", function(privKey) {
 
 	window.postMessage("cryptoauth:requestToken:"+btoa(encryptedUserPubkey), '*')
 
+})*/
+
+// Has to send the privkey each time for each page because Openpgpjs can't run in main.js
+self.port.on("requestToken", function(privKey) {
+
+	userPrivkey = openpgp.key.readArmored(privKey).keys[0]
+	userPrivkey.decrypt("pwd")
+	userPubkey = userPrivkey.toPublic().armor()
+	userHashedPubkey = btoa(openpgp.crypto.hash.digest(openpgp.enums.hash.ripemd, userPubkey))
+
+	//encryptedUserPubkey = openpgp.encryptMessage(serverPubkey, userPubkey)
+
+	window.postMessage("cryptoauth:requestToken:"+btoa(userHashedPubkey), '*')
+
 })
+

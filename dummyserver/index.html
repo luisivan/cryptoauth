@@ -20,24 +20,27 @@
 
 	ajax("/pubkey.asc", "GET", init)
 
+	ajax("/pubkey.asc", "POST", init)
+
 	function init(serverPubkey) {
 
 		new CryptoAuth({
 			serverPubkey: serverPubkey,
-			requestToken: function(encryptedPubkey, cb) {
+			requestToken: function(hashedPubkey, cb) {
 				console.log('Asking for a token')
 
-				ajax("/requestToken?encryptedPubkey="+encodeURIComponent(encryptedPubkey), "GET", function(encryptedToken) {
-					cb(encryptedToken)
+				ajax("/requestToken?hashedPubkey="+encodeURIComponent(hashedPubkey), "GET", function(res) {
+					res = JSON.parse(res)
+					cb(res.encryptedToken)
 				})
 			},
-			requestLogin: function(encryptedPubkey, signedEncryptedToken) {
+			requestLogin: function(hashedPubkey, tokenSignature) {
 				console.log('Asking for a login')
 
-				ajax("/requestLogin?encryptedPubkey="+encodeURIComponent(encryptedPubkey)+"&signedEncryptedToken="+encodeURIComponent(signedEncryptedToken), "POST", function(logged) {
+				ajax("/requestLogin?hashedPubkey="+encodeURIComponent(hashedPubkey)+"&tokenSignature="+encodeURIComponent(tokenSignature), "POST", function(res) {
 
 					// Obviously the server should then set a cookie or whatever if the auth was successful
-					if (logged == "true")
+					if (JSON.parse(res).logged == true)
 						alert('Auth was successful!')
 					else
 						alert('Auth failed')

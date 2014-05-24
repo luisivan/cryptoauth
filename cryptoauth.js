@@ -20,11 +20,11 @@ function CryptoAuth(config) {
 			case 'requestLogin':
 
 				payload = payload.split('|')
+				var hashedPubkey = payload[0],
+					tokenSignature = payload[1]
 
-				var encryptedPubkey = payload[0],
-					signedEncryptedToken = payload[1]
-
-				config.requestLogin(encryptedPubkey, signedEncryptedToken)
+				// Payload is signedEncryptedToken
+				config.requestLogin(hashedPubkey, tokenSignature)
 				break;
 		}
 

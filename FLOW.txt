@@ -1,13 +1,42 @@
-- 1. install cryptoauth extension
+Steps
+-----
 
-- 2. visit website that supports it. cryptoauth checks if window.cryptoauth is defined
+1. install cryptoauth extension
 
-- 3. if it is, the button turns green, and then you can click it to init the login process
+2. visit website that supports it. cryptoauth goes enabled
 
-4. if clicked, it sends the user's public key (window.cryptoauth.askToken(pubKey)) encrypted using the server's pubkey (window.cryptoauth.pubKey)
+3. click on cryptoauth
 
-5. the server replies with a token encrypted using the user's public key
+Signup
+-----
 
-6. the browser unencrypts it, signs the token and sends it to the server (window.cryptoauth.login(pubKey, tokenSigned))
+4. it sends user's pubkey encrypted using the server's pubkey. the server stores the pubkey and a hash of it
 
-7. the server verifies the signature and logs the user in
+Login
+-----
+
+4. it sends a hash of the user's pubkey encrypted using the server's pubkey
+
+Common
+-----
+
+5. the server replies with a token encrypted using the user's pubkey. it has linked that token with the user pubkey
+
+6. the browser unencrypts it, signs the token using the user's privkey and sends only the signature and a hash of the pubkey it to the server
+
+7. the server verifies the signature coupling it to the token and logs the user in. the token used before could also be used as the session secret
+
+(hashed pubkey + encrypted token) + (token's signature)
+0.6kb + 0.4kb = 1kb
+
+Old flow (deprecated, new is much faster)
+-----
+
+5. the server replies with a token encrypted using the user's pubkey. it has linked that token with the user pubkey
+
+6. the browser unencrypts it, signs and encrypts the token using the user's privkey and sends it to the server
+
+7. the server verifies the signature and logs the user in. the token used before could also be used as the session secret
+
+(encrypted pubkey + encrypted token) + (encrypted signed token)
+2.5kb + 1.5kb = 4kb

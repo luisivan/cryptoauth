@@ -5,6 +5,8 @@
   "homepage": "https://github.com/luisivan/cryptoauth",
   "dependencies": {
     "express": "^4.3.0",
+    "leveldown": "^0.10.2",
+    "levelup": "^0.18.3",
     "openpgp": "^0.6.0"
   }
 }
